@@ -1,4 +1,4 @@
-﻿# Tutorial 04 â€” Importing Data with bw2io
+# Tutorial 04 — Importing Data with bw2io
 
 **Companion notebook:** [04_importing_data.ipynb](04_importing_data.ipynb)
 
@@ -8,7 +8,7 @@ ready-made remote projects. The core idea to internalize is the
 **importer pipeline**:
 
 ```
-read file â†’ apply strategies (normalize) â†’ match/link â†’ check statistics â†’ write
+read file → apply strategies (normalize) → match/link → check statistics → write
 ```
 
 An import is not "load file"; it's an ETL job where the hard part is **linking**:
@@ -22,14 +22,14 @@ turning textual references ("Electricity, low voltage {DE}") into concrete
 notebook). Layout essentials:
 
 ```
-Database    kettle_xl          â† database block header
+Database    kettle_xl          ← database block header
                                  (blank row)
-Activity    electricity production, coal   â† one block per activity
+Activity    electricity production, coal   ← one block per activity
 unit        kilowatt hour
-type        process            â† REQUIRED â€” see gotcha below
-Exchanges                      â† then a header row + one row per exchange
+type        process            ← REQUIRED — see gotcha below
+Exchanges                      ← then a header row + one row per exchange
 name                     amount   unit            database     type        categories
-electricity productionâ€¦  1.0      kilowatt hour   kettle_xl    production
+electricity production…  1.0      kilowatt hour   kettle_xl    production
 Carbon dioxide, fossil   0.95     kilogram        biosphere3   biosphere   air
 ```
 
@@ -56,3 +56,90 @@ imp.statistics()                           # X datasets, Y exchanges, Z unlinked
 
 ```python
 if imp.statistics()[2] == 0:
+    imp.write_database()
+else:
+    imp.write_excel()          # dumps an .xlsx marking every unlinked exchange
+```
+
+Debugging unlinked exchanges: `list(imp.unlinked)` shows exactly which rows
+failed and on which fields — 90% of the time it's a name typo, a wrong
+`categories` value, or a unit mismatch (e.g. `kg` vs `kilogram` before
+strategies ran).
+
+## 2. Ready-made remote projects (free)
+
+`bw2io.remote` can install fully-prepared projects from files.brightway.dev:
+
+```python
+bw2io.remote.get_projects()                       # what's available
+bw2io.remote.install_project("USEEIO-1.1",        # US EEIO input-output DB
+                             "USEEIO", overwrite_existing=True)
+```
+
+**USEEIO 1.1** is a US environmentally-extended input-output database — a
+complete, license-free background: ~400 sectors, flows, and LCIA
+characterizations included. Great for screening studies and for tutorials.
+(Sector resolution is coarser than process databases like ecoinvent — "plastics
+material and resin manufacturing", not "polypropylene granulate".)
+
+The notebook installs it (network required, ~ tens of MB), pokes around, and
+runs a quick sector LCA.
+
+## 3. Ecoinvent (optional — license required)
+
+Two supported routes, both shown guarded in the notebook (they run only if you
+set credentials/paths):
+
+**A. Official downloader** (needs ecoinvent account credentials):
+
+```python
+import bw2io
+bw2io.import_ecoinvent_release(
+    version="3.10", system_model="cutoff",
+    username=..., password=...)     # creates biosphere + ei DB + methods
+```
+
+**B. From local ecospold2 files** (if you have the release archive, e.g. from a
+prior openLCA/SimaPro setup):
+
+```python
+imp = bw2io.SingleOutputEcospold2Importer(r"path\to\datasets", "ei310-cutoff")
+imp.apply_strategies(); imp.statistics(); imp.write_database()
+```
+
+Store credentials outside notebooks (environment variables
+`ECOINVENT_USERNAME` / `ECOINVENT_PASSWORD` — the notebook reads them and skips
+cleanly if absent). **Never commit them.**
+
+Other importers worth knowing: `SimaProCSVImporter` (SimaPro exports, common at
+PSU labs), `SingleOutputEcospold1Importer` (older data, e.g. some agri
+databases), `bw2io.backup/restore_project_directory` for moving whole projects
+between machines.
+
+## 4. Linking foreground → background
+
+After both exist in one project, your Excel foreground can reference the
+background database directly in its `database` column, or you link
+programmatically:
+
+```python
+imp.match_database("USEEIO", fields=["name", "location"])
+```
+
+The case studies use the pattern: hand-built background surrogates for full
+reproducibility, with clearly-marked cells swapping in ecoinvent when available.
+
+## Pitfalls
+
+- **Order matters**: `apply_strategies()` before `match_database()` — matching
+  runs on *normalized* fields.
+- Matching `biosphere3` **needs `categories`** in the match fields; name alone
+  is ambiguous (CO₂ to air vs to water).
+- `write_database()` on a name that exists **replaces** it.
+- Remote installs and ecoinvent downloads need network; everything else in this
+  hub runs offline.
+
+## Next
+
+→ [05 — LCIA with bw2calc](05_lcia_with_bw2calc.md): now that databases exist,
+calculate impacts properly — single scores, multi-method, multi-FU.
