@@ -1,4 +1,10 @@
-﻿parameter,baseline,alt_fuel,ccs,unit,notes
+parameter,baseline,alt_fuel,ccs,unit,notes
 clinker_ratio,0.90,0.90,0.90,kg clinker / kg cement,rest is supplementary cementitious material
 calcination_co2,0.53,0.53,0.53,kg CO2 / kg clinker,process CO2 from limestone (unavoidable chemistry)
 fuel_energy,3.4,3.4,3.6,MJ / kg clinker,kiln thermal demand (CCS adds parasitic load)
+coal_share,1.0,0.4,0.4,fraction,share of kiln energy from coal
+coal_ci,0.096,0.096,0.096,kg CO2 / MJ,coal combustion factor
+altfuel_ci,0.020,0.020,0.020,kg CO2 / MJ,waste-derived fuel (partly biogenic)
+elec_use,0.11,0.11,0.28,kWh / kg cement,grinding + CCS compression
+grid_ci,0.42,0.42,0.20,kg CO2 / kWh,grid intensity (CCS scenario assumes cleaner grid)
+ccs_capture,0.0,0.0,0.85,fraction,fraction of combustion+calcination CO2 captured
