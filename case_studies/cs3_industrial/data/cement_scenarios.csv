@@ -1,0 +1,4 @@
+﻿parameter,baseline,alt_fuel,ccs,unit,notes
+clinker_ratio,0.90,0.90,0.90,kg clinker / kg cement,rest is supplementary cementitious material
+calcination_co2,0.53,0.53,0.53,kg CO2 / kg clinker,process CO2 from limestone (unavoidable chemistry)
+fuel_energy,3.4,3.4,3.6,MJ / kg clinker,kiln thermal demand (CCS adds parasitic load)
