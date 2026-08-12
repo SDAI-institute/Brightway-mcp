@@ -1,5 +1,12 @@
-﻿parameter,value,unit,distribution,scale,notes
+parameter,value,unit,distribution,scale,notes
 corn_yield,0.36,kg ethanol / kg corn,lognormal,0.10,fermentation + distillation yield
 corn_ci,0.30,kg CO2 / kg corn,lognormal,0.15,corn cultivation (fertilizer N2O + diesel)
 process_heat,2.8,MJ / kg ethanol,lognormal,0.12,distillation steam demand
 heat_ci,0.075,kg CO2 / MJ,lognormal,0.10,natural gas boiler
+elec_use,0.35,kWh / kg ethanol,lognormal,0.12,milling + pumps
+grid_ci,0.42,kg CO2 / kWh,lognormal,0.10,grid electricity
+ddgs_credit,0.45,kg DDGS / kg ethanol,triangular,0.0,co-product (animal feed) for substitution
+ddgs_ci_avoided,0.55,kg CO2 / kg DDGS,lognormal,0.20,avoided soybean-meal feed
+gasoline_ref,3.20,kg CO2 / kg fuel,lognormal,0.08,fossil gasoline well-to-tank reference
+ethanol_energy,26.8,MJ / kg,none,0.0,lower heating value ethanol
+gasoline_energy,43.4,MJ / kg,none,0.0,lower heating value gasoline
