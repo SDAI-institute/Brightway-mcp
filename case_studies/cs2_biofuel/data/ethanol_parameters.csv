@@ -1,0 +1,5 @@
+﻿parameter,value,unit,distribution,scale,notes
+corn_yield,0.36,kg ethanol / kg corn,lognormal,0.10,fermentation + distillation yield
+corn_ci,0.30,kg CO2 / kg corn,lognormal,0.15,corn cultivation (fertilizer N2O + diesel)
+process_heat,2.8,MJ / kg ethanol,lognormal,0.12,distillation steam demand
+heat_ci,0.075,kg CO2 / MJ,lognormal,0.10,natural gas boiler
