@@ -1,5 +1,12 @@
-﻿process,exchange,input_db,amount,unit,type,notes
+process,exchange,input_db,amount,unit,type,notes
 single_use_pet,production,foreground,1.0,unit,production,one PET bottle
 single_use_pet,elec,foreground,0.20,kilowatt hour,technosphere,bottle forming
 single_use_pet,co2_fossil,biosphere,0.082,kilogram,biosphere,PET resin + forming (per bottle)
 reusable_steel,production,foreground,1.0,unit,production,one steel bottle (durable)
+reusable_steel,elec,foreground,4.5,kilowatt hour,technosphere,steel forming + finishing
+reusable_steel,co2_fossil,biosphere,3.6,kilogram,biosphere,stainless steel production (per bottle)
+wash,production,foreground,1.0,wash,production,one washing cycle
+wash,elec,foreground,0.015,kilowatt hour,technosphere,hot water heating per wash
+elec,production,foreground,1.0,kilowatt hour,production,grid electricity
+elec,co2_fossil,biosphere,0.42,kilogram,biosphere,grid carbon intensity
+elec,so2,biosphere,0.0012,kilogram,biosphere,grid SO2
