@@ -1,0 +1,5 @@
+﻿process,exchange,input_db,amount,unit,type,notes
+single_use_pet,production,foreground,1.0,unit,production,one PET bottle
+single_use_pet,elec,foreground,0.20,kilowatt hour,technosphere,bottle forming
+single_use_pet,co2_fossil,biosphere,0.082,kilogram,biosphere,PET resin + forming (per bottle)
+reusable_steel,production,foreground,1.0,unit,production,one steel bottle (durable)
