@@ -1,2 +1,6 @@
-﻿metric,value
+metric,value
 single-use GWP/use,0.166
+steel mfg GWP,5.49
+wash GWP/use,0.0063
+break-even (deterministic),35.0
+break-even median (MC),35.0
