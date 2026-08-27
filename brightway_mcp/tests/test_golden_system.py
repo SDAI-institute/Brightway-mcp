@@ -1,4 +1,4 @@
-﻿"""
+"""
 Golden-system cross-engine validation (SDAI reliability pass).
 
 Ports the EXACT scenario from `openlca_library/tests/fixtures/golden_system.py`
@@ -70,3 +70,112 @@ def golden_db(bw_project):
 
 
 def _golden_activity():
+    return core.get_activity("golden_db", code="product_production")
+
+
+class TestGoldenSystemHandCalc:
+    """Independent cross-check: same scenario, same hand-derived answer,
+    confirmed in a second engine (Brightway, not just openLCA)."""
+
+    def test_matches_hand_calculation(self, golden_db):
+        method = golden_db
+        act = _golden_activity()
+        _, score, unit = core.run_lca(act, method, amount=1.0)
+        assert score == pytest.approx(EXPECTED_IMPACT, rel=1e-9)
+        assert "CO2" in unit
+
+    def test_scales_linearly_with_functional_unit(self, golden_db):
+        """2 kg of Golden Product should give exactly 2x the impact -- no
+        allocation/cutoff in this model, pure linear scaling."""
+        method = golden_db
+        act = _golden_activity()
+        _, score, _ = core.run_lca(act, method, amount=2.0)
+        assert score == pytest.approx(2 * EXPECTED_IMPACT, rel=1e-9)
+
+
+class TestGoldenSystemDeterminism:
+    """Repeated calculations of the identical system must be bit-identical
+    (bc.LCA's deterministic solve, no Monte Carlo / sampling involved)."""
+
+    def test_repeated_calculations_are_identical(self, golden_db):
+        method = golden_db
+        act = _golden_activity()
+        scores = [core.run_lca(act, method, amount=1.0)[1] for _ in range(5)]
+        assert max(scores) - min(scores) == 0.0, f"Non-deterministic: {scores}"
+        assert all(s == pytest.approx(EXPECTED_IMPACT, rel=1e-9) for s in scores)
+
+
+class TestGoldenSystemConsistency:
+    """Process/flow contribution shares should sum to (approximately) the
+    total score -- mirrors openlca_mcp's check_result_consistency."""
+
+    def test_top_processes_sum_to_total(self, golden_db):
+        method = golden_db
+        act = _golden_activity()
+        lca, score, _ = core.run_lca(act, method, amount=1.0)
+        procs = core.top_processes(lca, limit=10)
+        assert sum(p["score"] for p in procs) == pytest.approx(score, rel=1e-6)
+
+    def test_top_emissions_sum_to_total(self, golden_db):
+        method = golden_db
+        act = _golden_activity()
+        lca, score, _ = core.run_lca(act, method, amount=1.0)
+        emissions = core.top_emissions(lca, limit=10)
+        assert sum(e["score"] for e in emissions) == pytest.approx(score, rel=1e-6)
+
+
+class TestGoldenSystemMonteCarlo:
+    """With uncertainty attached, the Monte Carlo mean should converge near
+    the deterministic value, and percentiles should be internally ordered."""
+
+    def test_monte_carlo_mean_near_deterministic(self, golden_db):
+        method = golden_db
+        act = _golden_activity()
+        _, deterministic, _ = core.run_lca(act, method, amount=1.0)
+
+        core.set_uncertainty(act, scale=0.05, distribution="lognormal")
+        stats = core.monte_carlo(act, method, iterations=300, amount=1.0)
+
+        assert stats["iterations"] == 300
+        assert stats["percentile_5"] <= stats["median"] <= stats["percentile_95"]
+        # mean within a few std of the deterministic baseline (loose bound --
+        # this is a sanity check on convergence, not a tight statistical test)
+        assert abs(stats["mean"] - deterministic) < 3 * stats["std"] + 1e-6
+
+
+class TestGoldenSystemUnitSignFuzzing:
+    """Bug-class prevention (mirrors openlca_mcp's F1 unit-handling audit):
+    a negative/avoided-product-style exchange must propagate its sign
+    correctly, not get silently absorbed or flipped."""
+
+    def test_negative_exchange_credits_rather_than_adds(self, bw_project):
+        """An activity with a NEGATIVE technosphere input of an emitting
+        upstream process should REDUCE the total (an avoided-burden credit),
+        not increase it."""
+        bd.projects.set_current(bw_project["project"])
+        method = tuple(bw_project["method"])
+        core.create_database("sign_check", overwrite=True)
+        core.write_activities("sign_check", [
+            {"code": "emitter", "name": "Emitter", "unit": "kg", "exchanges": [
+                {"type": "production", "input": "emitter", "amount": 1.0},
+                {"type": "biosphere", "input": "Carbon dioxide, fossil",
+                 "categories": ["air"], "amount": 4.0},
+            ]},
+            {"code": "credited", "name": "Credited process", "unit": "kg",
+             "exchanges": [
+                 {"type": "production", "input": "credited", "amount": 1.0},
+                 {"type": "biosphere", "input": "Carbon dioxide, fossil",
+                  "categories": ["air"], "amount": 10.0},
+                 # avoided burden: -0.5 kg of the emitter's output credited back
+                 {"type": "technosphere", "input": "emitter", "amount": -0.5},
+             ]},
+        ])
+        try:
+            act = core.get_activity("sign_check", code="credited")
+            _, score, _ = core.run_lca(act, method, amount=1.0)
+            expected = 10.0 + (-0.5 * 4.0)  # 10.0 - 2.0 = 8.0
+            assert score == pytest.approx(expected, rel=1e-9)
+            assert score < 10.0, "Negative exchange should have credited, not added"
+        finally:
+            if "sign_check" in bd.databases:
+                del bd.databases["sign_check"]
