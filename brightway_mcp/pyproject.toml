@@ -1,0 +1,16 @@
+﻿[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "brightway-mcp"
+version = "0.3.0"
+description = "Model Context Protocol server exposing Brightway 2.5 LCA as agent tools, organized by ISO 14040/44 phase."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "SDAI Ecosystem" }]
+license = { text = "MIT" }
+dependencies = [
+    "mcp==2.2.0",
+    "fastmcp==4.0.4",
+    "fastmcp-tasks==4.0.4",
