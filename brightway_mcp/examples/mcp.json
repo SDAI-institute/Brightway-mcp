@@ -1,0 +1,5 @@
+﻿{
+  "//": "Claude Code / .mcp.json â€” place at your project root or merge into an existing .mcp.json.",
+  "mcpServers": {
+    "brightway": {
+      "command": "python",
