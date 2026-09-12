@@ -1,5 +1,12 @@
-﻿{
-  "//": "Claude Code / .mcp.json â€” place at your project root or merge into an existing .mcp.json.",
+{
+  "//": "Claude Code / .mcp.json — place at your project root or merge into an existing .mcp.json.",
   "mcpServers": {
     "brightway": {
       "command": "python",
+      "args": ["-m", "brightway_mcp.server"],
+      "env": {
+        "BRIGHTWAY_READ_ONLY": "false"
+      }
+    }
+  }
+}
