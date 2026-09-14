@@ -1,0 +1,5 @@
+﻿{
+  "//": "Claude Desktop â€” merge into %APPDATA%\\Claude\\claude_desktop_config.json (Windows) or ~/Library/Application Support/Claude/claude_desktop_config.json (macOS).",
+  "//2": "Use an absolute python path from the venv where brightway-mcp is installed.",
+  "mcpServers": {
+    "brightway": {
