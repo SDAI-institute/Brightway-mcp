@@ -6,7 +6,7 @@ conventions of the sibling [`openlca_mcp`](../../openlca_mcp) server so the two
 feel identical to an agent (structured envelopes, read-only mode, result-id
 registry, per-call target selection).
 
-## Tools by ISO phase (22 tools)
+## Tool surface
 
 | Phase | Tools |
 |-------|-------|
@@ -14,6 +14,8 @@ registry, per-call target selection).
 | **Inventory** (write) | `setup_project`, `create_database`, `write_activities`, `set_uncertainty`, `import_lcia_methods` |
 | **Impact** (read) | `run_lca`, `run_multi_method`, `compare_activities`, `run_monte_carlo` |
 | **Interpretation** (read/write) | `contribution_analysis`, `top_emissions`, `supply_chain`, `export_result`, `dispose_result` |
+
+The 22 core tools are joined by six explicit background-job variants for long-running operations (`setup_project_async`, `import_lcia_methods_async`, `run_multi_method_async`, `run_monte_carlo_async`, `compare_activities_async`, `supply_chain_async`) and five job-lifecycle tools (`get_job_status`, `get_job_result`, `list_jobs`, `cancel_job`, `dispose_job`). The current server therefore exposes **33 tools** in total.
 
 Highlights beyond the basics:
 - **`setup_project`** — bootstrap a fresh project with a free biosphere + LCIA

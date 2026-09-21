@@ -1,6 +1,6 @@
 # Brightway MCP Tool Reference
 
-Reviewed package: `brightway-mcp` 0.1.0. The current FastMCP server exposes **22 tools** organized around setup/goal-and-scope, inventory, impact assessment, and interpretation.
+Reviewed package: `brightway-mcp` 0.3.0. The current FastMCP server exposes **33 tools**: 22 core LCA tools, 6 explicit background-job variants for long-running operations, and 5 job-lifecycle tools.
 
 ## Setup / goal and scope — 8 tools
 
@@ -45,6 +45,29 @@ These operations mutate Brightway data and are blocked by `BRIGHTWAY_READ_ONLY=t
 | `supply_chain` | Build a bounded recursive supply-chain contribution tree. |
 | `export_result` | Write a process-contribution table to CSV. |
 | `dispose_result` | Drop a stored solved LCA from the result registry. |
+
+## Background-job variants — 6 tools
+
+| Tool | Purpose |
+|---|---|
+| `setup_project_async` | Start project bootstrap as a background job. |
+| `import_lcia_methods_async` | Import an LCIA pack without holding one MCP request open. |
+| `run_multi_method_async` | Run a multi-method calculation as a background job. |
+| `run_monte_carlo_async` | Run Monte Carlo analysis as a background job. |
+| `compare_activities_async` | Run an alternatives × methods comparison as a background job. |
+| `supply_chain_async` | Build a supply-chain contribution tree as a background job. |
+
+When `BRIGHTWAY_NATIVE_TASKS_ENABLED=true` and the client supports MCP Tasks, the corresponding long-running core tools can also use native task behavior. The explicit `*_async` tools remain available for clients that do not support MCP Tasks.
+
+## Job lifecycle — 5 tools
+
+| Tool | Purpose |
+|---|---|
+| `get_job_status` | Poll a background job until `terminal=true`. |
+| `get_job_result` | Retrieve the result of a completed job, with optional paging for large lists. |
+| `list_jobs` | List recent background jobs. |
+| `cancel_job` | Cancel a queued job when cancellation is still safe. |
+| `dispose_job` | Remove a terminal job and its stored result from the job registry. |
 
 ## Result workflow
 

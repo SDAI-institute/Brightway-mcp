@@ -9,7 +9,7 @@ Use the Brightway MCP server to inspect or build a Brightway 2.5 project, run LC
 - the `brightway-mcp` package/repository
 - an existing Brightway project, or permission to bootstrap one
 
-The reviewed package version is 0.1.0.
+The reviewed package version is 0.3.0.
 
 ## 1. Install
 
